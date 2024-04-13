@@ -1,0 +1,1 @@
+export { SMB2 as smbclient } from './src/main/ets/smb2'

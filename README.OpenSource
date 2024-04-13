@@ -1,0 +1,11 @@
+[
+    {
+        "Name": " smbclient ",
+        "License": " MIT License ",
+        "License File": " LICENSE ",
+        "Version Number": " v0.0.1",
+        "Owner": "liuxiaobin@liuzhosoft.com"
+        "Upstream URL": " https://gitee.com/openharmony-tpc/openharmony_tpc_samples/tree/master/smbj ",
+        "Description": " This library is a simple implementation of SMB2 for HarmonyOS. "
+    }
+]

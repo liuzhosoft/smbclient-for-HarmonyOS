@@ -1,0 +1,11 @@
+{
+  "name": "smbclient",
+  "version": "1.0.0",
+  "description": "smb client for harmonyOS.",
+  "type": "module",
+  "main": "Index.ets",
+  "author": "LiuZho Soft",
+  "license": "MIT License",
+  "repository": "https://github.com/liuzhosoft/smbclient-for-HarmonyOS",
+  "dependencies": {}
+}
