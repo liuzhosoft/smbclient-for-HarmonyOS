@@ -30,6 +30,12 @@ export interface options {
 }
 
 export class SMB2 {
+  static log = false
+
+  static configure(log: boolean) {
+    this.log = log
+  }
+
   private ip: string = '';
   private port: number = 445;
   private messageId: number = 0;
