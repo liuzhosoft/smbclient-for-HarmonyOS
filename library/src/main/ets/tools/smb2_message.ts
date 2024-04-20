@@ -9,33 +9,56 @@ import struct_session_setup from '../structures/session_setup'
 import struct_set_info from '../structures/set_info'
 import struct_tree_connect from '../structures/tree_connect'
 import struct_write from '../structures/write'
+import struct_query_info from '../structures/query_info'
 
 /*
  * CONSTANTS
  */
 const protocolId = new Buffer([0xFE, 'S'.charCodeAt(0), 'M'.charCodeAt(0), 'B'.charCodeAt(0)])
 
+enum SMB2MessageCommandCode {
+  SMB2_NEGOTIATE = 0x0000,
+  SMB2_SESSION_SETUP = 0x0001,
+  SMB2_LOGOFF = 0x0002,
+  SMB2_TREE_CONNECT = 0x0003,
+  SMB2_TREE_DISCONNECT = 0x0004,
+  SMB2_CREATE = 0x0005,
+  SMB2_CLOSE = 0x0006,
+  SMB2_FLUSH = 0x0007,
+  SMB2_READ = 0x0008,
+  SMB2_WRITE = 0x0009,
+  SMB2_LOCK = 0x000A,
+  SMB2_IOCTL = 0x000B,
+  SMB2_CANCEL = 0x000C,
+  SMB2_ECHO = 0x000D,
+  SMB2_QUERY_DIRECTORY = 0x000E,
+  SMB2_CHANGE_NOTIFY = 0x000F,
+  SMB2_QUERY_INFO = 0x0010,
+  SMB2_SET_INFO = 0x0011,
+  SMB2_OPLOCK_BREAK = 0x0012
+}
+
 const headerTranslates = {
   'Command': {
-    'NEGOTIATE': 0x0000,
-    'SESSION_SETUP': 0x0001,
-    'LOGOFF': 0x0002,
-    'TREE_CONNECT': 0x0003,
-    'TREE_DISCONNECT': 0x0004,
-    'CREATE': 0x0005,
-    'CLOSE': 0x0006,
-    'FLUSH': 0x0007,
-    'READ': 0x0008,
-    'WRITE': 0x0009,
-    'LOCK': 0x000A,
-    'IOCTL': 0x000B,
-    'CANCEL': 0x000C,
-    'ECHO': 0x000D,
-    'QUERY_DIRECTORY': 0x000E,
-    'CHANGE_NOTIFY': 0x000F,
-    'QUERY_INFO': 0x0010,
-    'SET_INFO': 0x0011,
-    'OPLOCK_BREAK': 0x0012
+    'NEGOTIATE': SMB2MessageCommandCode.SMB2_NEGOTIATE,
+    'SESSION_SETUP': SMB2MessageCommandCode.SMB2_SESSION_SETUP,
+    'LOGOFF': SMB2MessageCommandCode.SMB2_LOGOFF,
+    'TREE_CONNECT': SMB2MessageCommandCode.SMB2_TREE_CONNECT,
+    'TREE_DISCONNECT': SMB2MessageCommandCode.SMB2_TREE_DISCONNECT,
+    'CREATE': SMB2MessageCommandCode.SMB2_CREATE,
+    'CLOSE': SMB2MessageCommandCode.SMB2_CLOSE,
+    'FLUSH': SMB2MessageCommandCode.SMB2_FLUSH,
+    'READ': SMB2MessageCommandCode.SMB2_READ,
+    'WRITE': SMB2MessageCommandCode.SMB2_WRITE,
+    'LOCK': SMB2MessageCommandCode.SMB2_LOCK,
+    'IOCTL': SMB2MessageCommandCode.SMB2_IOCTL,
+    'CANCEL': SMB2MessageCommandCode.SMB2_CANCEL,
+    'ECHO': SMB2MessageCommandCode.SMB2_ECHO,
+    'QUERY_DIRECTORY': SMB2MessageCommandCode.SMB2_QUERY_DIRECTORY,
+    'CHANGE_NOTIFY': SMB2MessageCommandCode.SMB2_CHANGE_NOTIFY,
+    'QUERY_INFO': SMB2MessageCommandCode.SMB2_QUERY_INFO,
+    'SET_INFO': SMB2MessageCommandCode.SMB2_SET_INFO,
+    'OPLOCK_BREAK': SMB2MessageCommandCode.SMB2_OPLOCK_BREAK,
   }
 }
 
@@ -48,12 +71,12 @@ const flags = {
   'REPLAY_OPERATION': 0x20000000
 }
 
-const headerLength = 64
+export const headerStructureSize = 64
 
 const headerSync = function (processId, sessionId) {
   return [
     ['ProtocolId', 4, protocolId],
-    ['StructureSize', 2, headerLength],
+    ['StructureSize', 2, headerStructureSize],
     ['CreditCharge', 2, 0],
     ['Status', 4, 0],
     ['Command', 2],
@@ -72,7 +95,7 @@ const headerSync = function (processId, sessionId) {
 const headerASync = function (processId, sessionId) {
   return [
     ['ProtocolId', 4, protocolId],
-    ['StructureSize', 2, headerLength],
+    ['StructureSize', 2, headerStructureSize],
     ['CreditCharge', 2, 0],
     ['Status', 4, 0],
     ['Command', 2],
@@ -155,7 +178,7 @@ proto.getBuffer = function (connection) {
   length += writeHeaders(this, buffer);
 
   // REQUEST
-  length += writeRequest(this, buffer, headerLength)
+  length += writeRequest(this, buffer, headerStructureSize)
   // extract the data
   var output = new Buffer(length);
   buffer.copy(output, 0, 0, length);
@@ -168,7 +191,7 @@ proto.parseBuffer = function (buffer) {
   readHeaders(this, buffer)
 
   // RESPONSE
-  readResponse(this, buffer, headerLength)
+  readResponse(this, buffer, headerStructureSize)
 
 }
 
@@ -298,6 +321,9 @@ function getStructure(header) {
       break;
     case 'write':
       structure = struct_write;
+      break;
+    case 'query_info':
+      structure = struct_query_info;
       break;
     default:
       structure = struct_close;

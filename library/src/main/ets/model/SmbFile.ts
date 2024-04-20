@@ -8,14 +8,14 @@ export default class SmbFile {
   LastWriteTime: number
   // milliseconds
   ChangeTime: number
-  EndofFile: 0
-  AllocationSize: 0
-  FileAttributes: 0
-  FilenameLength: 0
-  EASize: 0
+  EndofFile: bigint
+  AllocationSize: bigint
+  FileAttributes: number
+  FilenameLength: number
+  EASize: number
   ShortNameLength: 0
   FileId: ''
-  Filename: ''
+  Filename: string
 
   isDirectory(): boolean {
     return (this.FileAttributes & 0x00000010) > 0

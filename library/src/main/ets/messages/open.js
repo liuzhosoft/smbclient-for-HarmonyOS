@@ -7,7 +7,7 @@ export default message({
   generate: function (connection, params) {
 
     var buffer = new Buffer(params.path, 'ucs2');
-    JSON.stringify("smbj open message:" + JSON.stringify(params))
+
     return new SMB2Message({
       headers: {
         'Command': 'CREATE'

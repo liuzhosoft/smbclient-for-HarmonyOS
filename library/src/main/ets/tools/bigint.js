@@ -244,4 +244,6 @@ BigInt.prototype.ge = function (v) {
 
 
 
-
+export function jsonStringifyBigint(key, value) {
+  return (typeof value === 'bigint' || value instanceof BigInt) ? value.toString() : value
+}

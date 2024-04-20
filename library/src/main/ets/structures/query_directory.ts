@@ -1,7 +1,9 @@
+import { FileInformationClass } from '../msfscc/FileInformationClass'
+
 export default {
   request: [
     ['StructureSize', 2, 33]
-    , ['FileInformationClass', 1, 0x25] // FileBothDirectoryInformation plus volume file ID about a file or directory.
+    , ['FileInformationClass', 1, FileInformationClass.FileIdBothDirectoryInformation]
     , ['Flags', 1, 0]
     , ['FileIndex', 4, 0]
     , ['FileId', 16]

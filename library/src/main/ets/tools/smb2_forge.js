@@ -15,8 +15,10 @@ import message_set_info from '../messages/set_info'
 import message_tree_connect from '../messages/tree_connect'
 import message_write from '../messages/write'
 import message_list_shares from '../messages/list_shares'
+import message_query_info from '../messages/query_info'
+import { logi } from './logger'
 
-var SMB2Forge = {
+const SMB2Forge = {
   request: function (messageName, params, connection, cb) {
   },
   response: function (c) {
@@ -31,38 +33,27 @@ var SMB2Forge = {
  */
 SMB2Forge.request = function (messageName, params, connection, cb) {
   var msg = getMessage(messageName)
+  logi('request', ' msgName=' + messageName + ', msg=' + JSON.stringify(msg));
   // @ts-ignore
   var smbMessage = msg.generate(connection, params)
 
-  if ('session_setup_step2' == messageName) {
-    setTimeout(() => {
-      // send
-      sendNetBiosMessage(
-        connection
-        , smbMessage
-      );
 
-      // wait for the response
-      getResponse(
-        connection
-        , smbMessage.getHeaders().MessageId
-        // @ts-ignore
-        , msg.parse(connection, cb)
-      );
-    }, 2000)
-  } else {
+  let sendAndReceive = () => {
     // send
-    sendNetBiosMessage(
-      connection
-      , smbMessage
-    );
+    sendNetBiosMessage(connection, smbMessage);
+
     // wait for the response
     getResponse(
-      connection
-      , smbMessage.getHeaders().MessageId
-      // @ts-ignore
-      , msg.parse(connection, cb)
+      connection,
+      smbMessage.getHeaders().MessageId,
+      msg.parse(connection, cb)
     );
+  }
+
+  if ('session_setup_step2' == messageName) {
+    setTimeout(sendAndReceive, 2000);
+  } else {
+    sendAndReceive();
   }
 
 
@@ -141,23 +132,10 @@ function sendNetBiosMessage(connection, message) {
 
   // write message content
   smbRequest.copy(buffer, 4, 0, smbRequest.length);
-  console.log("smb send smbRequest: " + buffer.join(','))
   // Send it !!!
   connection.newResponse = false;
-  if ('NEGOTIATE' == message.headers.Command) {
-    connection.socket.on('connect', () => {
-      connection.socket.send({
-        data: buffer.buffer
-      }, err => {
-        if (err) {
-          console.log('smb send fail:' + JSON.stringify(err));
-          return;
-        }
-        console.log('smb send success');
-      })
-    });
-  } else {
 
+  let send = () => {
     console.log('smb start send ...............');
     connection.socket.send({
       data: buffer.buffer
@@ -167,7 +145,13 @@ function sendNetBiosMessage(connection, message) {
         return;
       }
       console.log('smb send success');
-    })
+    });
+  }
+
+  if ('NEGOTIATE' == message.headers.Command) {
+    connection.socket.on('connect', send);
+  } else {
+    send();
   }
 
   return true;
@@ -231,8 +215,12 @@ function getMessage(messageName) {
       break;
     case 'list_shares':
       msg = message_list_shares;
+      break;
+    case 'query_info':
+      msg = message_query_info;
+      break;
     default:
-      break
+      break;
   }
   return msg;
 }

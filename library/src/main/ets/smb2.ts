@@ -11,6 +11,8 @@ import rmdir from './api/rmdir'
 import unlink from './api/unlink'
 import sendfile from './api/sendfile'
 import listshare from './api/listshare'
+import fileinfo from './api/fileinfo'
+import SmbFile from './model/SmbFile'
 
 let port = 445
 let packetConcurrency = 20
@@ -99,31 +101,37 @@ export class SMB2 {
     SMB2Connection.init(this);
   }
 
-  public exists(path, callback) {
+  public exists(path: string, callback) {
+    path = this.fmtPath(path)
     SMB2Connection.requireConnect(this, exists)(path, callback)
   }
 
-  public mkdir(path, callback) {
+  public mkdir(path: string, callback: (err?: Error) => void) {
+    path = this.fmtPath(path)
     SMB2Connection.requireConnect(this, mkdir)(path, callback)
   }
 
-  public listFile(path, callback) {
+  public listFile(path: string, callback: (err: Error | undefined, files: SmbFile[]) => void) {
     path = this.fmtPath(path)
     SMB2Connection.requireConnect(this, readdir)(path, callback)
   }
 
   public readFile(filename: string, options?: { encoding: 'UTF-8' }, callback?: any) {
+    filename = this.fmtPath(filename)
     if (!options) {
       options = { encoding: 'UTF-8' }
     }
     SMB2Connection.requireConnect(this, readfile)([filename, options], callback)
   }
 
-  public rename(oldPath, newPath, callback) {
+  public rename(oldPath: string, newPath: string, callback) {
+    oldPath = this.fmtPath(oldPath)
+    newPath = this.fmtPath(newPath)
     SMB2Connection.requireConnect(this, rename)([oldPath, newPath], callback)
   }
 
-  public writeFile(filename, data, encoding?: string, callback?: any) {
+  public writeFile(filename: string, data, encoding?: string, callback?: any) {
+    filename = this.fmtPath(filename)
     if (!encoding) {
       encoding = 'UTF-8'
     }
@@ -131,15 +139,24 @@ export class SMB2 {
   }
 
 
-  public rmdir(path, callback) {
+  /**
+   * delete directory
+   */
+  public rmdir(path: string, callback) {
+    path = this.fmtPath(path)
     SMB2Connection.requireConnect(this, rmdir)(path, callback)
   }
 
-  public unlink(path, callback) {
+  /**
+   * delete file
+   */
+  public rm(path: string, callback) {
+    path = this.fmtPath(path)
     SMB2Connection.requireConnect(this, unlink)(path, callback)
   }
 
   public sendFile(filename: string, data, callback) {
+    filename = this.fmtPath(filename)
     SMB2Connection.requireConnect(this, sendfile)([filename, data], callback)
   }
 
@@ -149,11 +166,16 @@ export class SMB2 {
     SMB2Connection.requireConnect(this, listshare)([], callback)
   }
 
+  public fileInfo(path: string, callback: (err: Error | undefined, file: SmbFile) => void) {
+    path = this.fmtPath(path)
+    SMB2Connection.requireConnect(this, fileinfo)(path, callback)
+  }
+
   public close() {
     close(this)
   }
 
-  private fmtPath(path) {
+  private fmtPath(path: string) {
     if (path.startsWith("/")) {
       path = path.substring(1)
     }

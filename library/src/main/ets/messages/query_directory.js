@@ -2,7 +2,7 @@ import SMB2Message from '../tools/smb2_message';
 import { message } from '../tools/message';
 import { Buffer } from '../buffer/index';
 import SmbFile from '../model/SmbFile';
-import { readWindowsTime, windowsTimeStamp2Unix } from '../tools/time_util';
+import { readWindowsTime, windowsTime2Unix } from '../tools/TimeUtil';
 
 
 export default message({
@@ -52,7 +52,7 @@ function parseFiles(buffer) {
 }
 
 
-function parseFile( buffer) {
+function parseFile(buffer) {
   var file = new SmbFile()
   var offset = 0
   // index
@@ -61,22 +61,22 @@ function parseFile( buffer) {
 
   // CreationTime
   let windowsTime = readWindowsTime(buffer, offset);
-  file.CreationTime = windowsTimeStamp2Unix(windowsTime);
+  file.CreationTime = windowsTime2Unix(windowsTime);
   offset += 8;
 
   // LastAccessTime
   windowsTime = readWindowsTime(buffer, offset);
-  file.LastAccessTime = windowsTimeStamp2Unix(windowsTime);
+  file.LastAccessTime = windowsTime2Unix(windowsTime);
   offset += 8;
 
   // LastWriteTime
   windowsTime = readWindowsTime(buffer, offset);
-  file.LastWriteTime = windowsTimeStamp2Unix(windowsTime);
+  file.LastWriteTime = windowsTime2Unix(windowsTime);
   offset += 8;
 
   // ChangeTime
   windowsTime = readWindowsTime(buffer, offset);
-  file.ChangeTime = windowsTimeStamp2Unix(windowsTime);
+  file.ChangeTime = windowsTime2Unix(windowsTime);
   offset += 8;
 
 
@@ -85,7 +85,7 @@ function parseFile( buffer) {
   offset += 8;
 
   // AllocationSize
-  file.AllocationSize = buffer.subarray(offset, offset + 8);
+  file.AllocationSize = buffer.readBigUInt64LE(offset);
   offset += 8;
 
   // FileAttributes
