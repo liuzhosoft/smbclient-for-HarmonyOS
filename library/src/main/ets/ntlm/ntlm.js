@@ -1,8 +1,7 @@
-import { expandkey, oddpar } from './common'
-import { Buffer } from '../buffer/index'
-
-import { lmhashbuf, nthashbuf } from './smbhash'
-import { crypto } from '@ohos/node-polyfill'
+import { expandkey, oddpar } from './common';
+import { Buffer } from '../buffer/index';
+import { lmhashbuf, nthashbuf } from './smbhash';
+import { crypto } from './crypto';
 
 var globalEncodeBuff;
 

@@ -1,7 +1,7 @@
 import { bintohex, expandkey, oddpar } from './common'
 import { Buffer } from '../buffer/index'
 import { MD4 } from '../crypto/md4'
-import { crypto } from '@ohos/node-polyfill'
+import { crypto } from './crypto';
 
 /*
  * Generate the LM Hash
