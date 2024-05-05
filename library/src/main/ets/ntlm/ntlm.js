@@ -1,7 +1,7 @@
 import { expandkey, oddpar } from './common';
 import { Buffer } from '../buffer/index';
 import { lmhashbuf, nthashbuf } from './smbhash';
-import { crypto } from './crypto';
+import { createDES } from './desutil';
 
 var globalEncodeBuff;
 
@@ -126,7 +126,7 @@ function makeResponse(hash, nonce) {
   var out = new Buffer(24);
   for (var i = 0; i < 3; i++) {
     var keybuf = oddpar(expandkey(hash.slice(i * 7, i * 7 + 7)));
-    var des = crypto.createCipheriv('DES-ECB', keybuf, '');
+    var des = createDES(keybuf);
     var str = des.update(nonce.toString('binary'), 'binary', 'binary');
     out.write(str, i * 8, i * 8 + 8, 'binary');
   }

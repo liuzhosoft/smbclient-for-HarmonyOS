@@ -1,3 +1,0 @@
-
--keep
-./src/main/ets/ntlm/*

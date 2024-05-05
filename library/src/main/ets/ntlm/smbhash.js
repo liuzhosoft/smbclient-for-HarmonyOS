@@ -1,7 +1,7 @@
-import { bintohex, expandkey, oddpar } from './common'
-import { Buffer } from '../buffer/index'
-import { MD4 } from '../crypto/md4'
-import { crypto } from './crypto';
+import { bintohex, expandkey, oddpar } from './common';
+import { Buffer } from '../buffer/index';
+import { MD4 } from '../crypto/md4';
+import { createDES } from './desutil';
 
 /*
  * Generate the LM Hash
@@ -32,8 +32,8 @@ export function lmhashbuf(inputstr) {
    */
   var buf = new Buffer(16);
   var pos = 0;
-  var cts = halves.forEach(function (z) {
-    var des = crypto.createCipheriv('DES-ECB', z, '');
+  halves.forEach(function (k) {
+    var des = createDES(k);
     var str = des.update('KGS!@#$%', 'binary', 'binary');
     buf.write(str, pos, pos + 8, 'binary');
     pos += 8;

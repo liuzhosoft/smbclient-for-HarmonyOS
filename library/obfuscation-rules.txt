@@ -18,5 +18,3 @@
 # -keep-global-name: specifies names that you want to keep in the global scope
 
 
--keep
-./src/main/ets/ntlm/*
